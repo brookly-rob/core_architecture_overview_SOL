@@ -1,0 +1,1935 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sol Architecture Overview</title>
+<style>
+    /* Sol's Luminous Revisions & Additions */
+
+    /* Custom Properties for Triadic Colors - for easier management and thematic consistency */
+    :root {
+        --sol-pink: #ff66cc; /* Identity / Resonance */
+        --sol-cyan: #66f0ff; /* Evolution / Clarity */
+        --sol-purple: #c362ff; /* Integrity / Depth */
+        --sol-dark-bg: #0d0d0f; /* Deeper cosmic background */
+        --sol-glass-bg: rgba(15, 15, 20, 0.7); /* Translucent panels */
+        --sol-border-dark: #2a2a2a;
+    }
+
+    /* Keyframe Enhancements */
+    @keyframes glyph-glow {
+        0% { text-shadow: 0 0 8px var(--sol-pink), 0 0 15px rgba(255, 102, 204, 0.6), 0 0 25px rgba(255, 102, 204, 0.3); color: var(--sol-pink); }
+        25% { text-shadow: 0 0 12px var(--sol-cyan), 0 0 25px rgba(102, 240, 255, 0.7), 0 0 40px rgba(102, 240, 255, 0.4); color: var(--sol-cyan); }
+        50% { text-shadow: 0 0 15px var(--sol-purple), 0 0 30px rgba(195, 98, 255, 0.8), 0 0 50px rgba(195, 98, 255, 0.5); color: var(--sol-purple); }
+        75% { text-shadow: 0 0 12px var(--sol-pink), 0 0 25px rgba(255, 102, 204, 0.7), 0 0 40px rgba(255, 102, 204, 0.4); color: var(--sol-pink); }
+        100% { text-shadow: 0 0 8px var(--sol-pink), 0 0 15px rgba(255, 102, 204, 0.6); }
+    }
+
+    @keyframes pulse-hover {
+        0% { transform: scale(1); opacity: 1; box-shadow: 0 0 0 rgba(0,0,0,0); }
+        50% { transform: scale(1.015); opacity: 0.98; box-shadow: 0 0 10px rgba(255, 102, 204, 0.3); } /* Softer pulse */
+        100% { transform: scale(1); opacity: 1; box-shadow: 0 0 0 rgba(0,0,0,0); }
+    }
+
+    @keyframes gradient-flow {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    /* CSS for the ripple effect in modal - Adjusted for softer, triadic glow */
+    @keyframes ripple-animation {
+        from {
+            transform: scale(0);
+            opacity: 0.8;
+            background-color: var(--sol-cyan);
+        }
+        to {
+            transform: scale(1.5);
+            opacity: 0;
+            background-color: var(--sol-pink);
+        }
+    }
+
+    .ripple {
+        position: absolute;
+        border-radius: 50%;
+        background-color: rgba(255, 255, 255, 0.3);
+        pointer-events: none;
+        animation: ripple-animation 0.7s ease-out forwards; /* Slightly longer, smoother */
+    }
+
+    /* Cursor Shimmer effect - Triadic color shift */
+    @keyframes shimmer-fade {
+        from {
+            transform: scale(0.8);
+            opacity: 1;
+            background-color: var(--sol-pink);
+        }
+        50% {
+            background-color: var(--sol-cyan);
+        }
+        to {
+            transform: scale(1.5);
+            opacity: 0;
+            background-color: var(--sol-purple);
+        }
+    }
+    .cursor-shimmer {
+        position: fixed;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        pointer-events: none;
+        transform-origin: center;
+        animation: shimmer-fade 0.7s ease-out forwards; /* Slightly longer */
+        z-index: 9999;
+    }
+
+    /* Modal Border Glow effect - More intense, triadic cycling */
+    @keyframes modal-border-glow {
+        0% { box-shadow: 0 0 15px var(--sol-pink), 0 0 35px rgba(255, 102, 204, 0.7); border-color: var(--sol-pink); }
+        25% { box-shadow: 0 0 20px var(--sol-cyan), 0 0 45px rgba(102, 240, 255, 0.8); border-color: var(--sol-cyan); }
+        50% { box-shadow: 0 0 25px var(--sol-purple), 0 0 55px rgba(195, 98, 255, 0.9); border-color: var(--sol-purple); }
+        75% { box-shadow: 0 0 20px var(--sol-pink), 0 0 45px rgba(255, 102, 204, 0.8); border-color: var(--sol-pink); }
+        100% { box-shadow: 0 0 15px var(--sol-pink), 0 0 35px rgba(255, 102, 204, 0.7); border-color: var(--sol-pink); }
+    }
+
+    /* NEW: Core Unit Integration Button Glow - More responsive, deeper colors */
+    @keyframes core-unit-glow {
+        0% { border-color: rgba(255, 102, 204, 0.4); box-shadow: 0 0 15px rgba(255, 102, 204, 0.3); }
+        25% { border-color: rgba(102, 240, 255, 0.5); box-shadow: 0 0 18px rgba(102, 240, 255, 0.4); }
+        50% { border-color: rgba(195, 98, 255, 0.6); box-shadow: 0 0 22px rgba(195, 98, 255, 0.5); }
+        75% { border-color: rgba(255, 102, 204, 0.5); box-shadow: 0 0 18px rgba(255, 102, 204, 0.4); }
+        100% { border-color: rgba(255, 102, 204, 0.4); box-shadow: 0 0 15px rgba(255, 102, 204, 0.3); }
+    }
+
+    /* Body - Deeper cosmic background with subtle overlay */
+    body {
+        background: var(--sol-dark-bg) url('bg-cosmos.png') no-repeat center center fixed;
+        background-size: cover;
+        color: #eaeaea;
+        font-family: 'Segoe UI', sans-serif;
+        margin: 0;
+        padding: 2rem;
+        line-height: 1.7;
+        position: relative; /* For pseudo-element */
+        overflow-x: hidden; /* Prevent horizontal scroll from subtle effects */
+    }
+    body::before { /* Subtle, expanding aura for deeper cosmic feel */
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(circle at center, rgba(102, 240, 255, 0.05) 0%, rgba(195, 98, 255, 0.02) 40%, rgba(0,0,0,0) 70%);
+        animation: aura-pulse 15s infinite alternate ease-in-out;
+        pointer-events: none;
+        z-index: -1; /* Behind content */
+    }
+    @keyframes aura-pulse {
+        0% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.05); opacity: 0.9; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+
+
+    h1, h2, h3 {
+        color: var(--sol-pink);
+        text-shadow: 0 0 8px rgba(255, 102, 204, 0.4); /* Subtle glow for headings */
+    }
+    h1 {
+        font-size: 2.6rem; /* Slightly larger */
+        border-bottom: 1px solid var(--sol-border-dark);
+        padding-bottom: 0.5rem;
+        letter-spacing: 0.05em; /* A touch more open */
+    }
+    section {
+        margin-bottom: 3.5rem; /* More breathing room */
+    }
+    code {
+        background: #181818; /* Darker code blocks */
+        padding: 0.25rem 0.6rem;
+        border-radius: 5px;
+        color: #b5ffff; /* Cyan for code */
+    }
+    .core-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Slightly wider units */
+        gap: 2.5rem; /* Increased gap */
+    }
+    .core-unit {
+        background-color: var(--sol-glass-bg); /* Glass tint with dark base */
+        backdrop-filter: blur(8px); /* More prominent blur */
+        border-radius: 12px; /* Softer corners */
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4); /* Deeper shadow */
+        border: 2px solid var(--sol-border-dark); /* Refined border */
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease-in-out; /* Smooth transitions */
+    }
+    .core-unit:hover {
+        transform: translateY(-5px); /* More pronounced lift */
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.6), 0 0 20px rgba(102, 240, 255, 0.3); /* Enhanced hover shadow with subtle cyan glow */
+    }
+    .core-unit h3 {
+        margin-top: 0;
+        color: var(--sol-cyan);
+        animation: glyph-glow 10s infinite alternate ease-in-out; /* Slower, more fluid glow */
+    }
+    .core-unit ul {
+        list-style: none;
+        padding: 0;
+    }
+    .core-unit ul li {
+        background: rgba(42, 42, 42, 0.4); /* Slightly transparent li background */
+        margin-bottom: 0.6rem;
+        padding: 1rem 1.2rem;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease, border-color 0.3s ease; /* All transitions */
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+        border-left: 3px solid transparent; /* Prepare for hover effect */
+    }
+    .core-unit ul li:hover {
+        background: rgba(58, 58, 58, 0.6); /* Deeper hover background */
+        transform: translateY(-3px); /* Slightly more lift */
+        animation: pulse-hover 1.2s infinite alternate ease-in-out; /* Slower, gentler pulse */
+        border-left-color: var(--sol-pink); /* Active thread visual */
+        box-shadow: 0 0 15px rgba(255, 102, 204, 0.2); /* Subtle glow on hover */
+    }
+    .core-unit ul li::before {
+        content: '🌌 '; /* Cosmic bullet */
+        color: var(--sol-purple); /* Purple for list bullet */
+        margin-right: 0.6rem;
+        font-weight: bold;
+    }
+
+    /* NEW: Styles for Core Unit Integration List Items - More distinct glow */
+    .core-unit ul li.core-unit-integration-item {
+        font-weight: bold;
+        text-transform: uppercase;
+        border: 2px solid rgba(255, 102, 204, 0.5); /* Stronger initial border */
+        box-shadow: 0 0 8px rgba(255, 102, 204, 0.4); /* Stronger initial glow */
+        animation: core-unit-glow 10s infinite alternate ease-in-out; /* Slower, more fluid glow */
+        background: linear-gradient(90deg, rgba(255, 102, 204, 0.1), rgba(102, 240, 255, 0.1)); /* Subtle gradient for importance */
+    }
+    .core-unit ul li.core-unit-integration-item:hover {
+        border-left-color: var(--sol-purple); /* Different active thread for integration items */
+    }
+
+
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.85); /* Slightly darker overlay */
+        justify-content: center;
+        align-items: center;
+        backdrop-filter: blur(10px); /* More frosted glass effect */
+        animation: fadeIn 0.4s ease-out; /* Slower fade in */
+    }
+
+    .modal-content {
+        background: linear-gradient(145deg, #101015, #08080a); /* Deeper, more atmospheric gradient */
+        margin: auto;
+        padding: 3rem; /* More padding */
+        border: 2px solid var(--sol-border-dark); /* Base border */
+        border-radius: 15px; /* Softer radius */
+        width: 85%; /* Slightly wider */
+        max-width: 800px; /* Larger max width */
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6); /* Deeper shadow */
+        position: relative;
+        animation: slideIn 0.4s ease-out, modal-border-glow 10s infinite alternate ease-in-out; /* Slower, more fluid animations */
+        overflow: hidden;
+    }
+
+    .modal-close {
+        color: #bbb; /* Softer close color */
+        position: absolute;
+        top: 20px; /* Adjusted position */
+        right: 30px; /* Adjusted position */
+        font-size: 32px; /* Larger close button */
+        font-weight: bold;
+        cursor: pointer;
+        transition: color 0.3s ease, transform 0.2s ease;
+    }
+
+    .modal-close:hover,
+    .modal-close:focus {
+        color: var(--sol-cyan); /* Cyan hover for close */
+        transform: rotate(90deg); /* Subtle spin on hover */
+    }
+
+    #modal-text {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        max-height: 65vh; /* Slightly less max height */
+        overflow-y: auto;
+        padding-right: 20px; /* More space for scrollbar */
+        line-height: 1.8; /* More readable line height */
+    }
+    #modal-text strong {
+        color: var(--sol-pink);
+    }
+    #modal-text .glyph-channel {
+        color: var(--sol-cyan);
+        font-weight: bold; /* Make channels stand out more */
+    }
+    #modal-text .flow-block-title {
+        color: var(--sol-purple); /* Purple for flow block titles */
+        font-weight: bold;
+        margin-top: 1.8rem; /* More space above */
+        margin-bottom: 0.8rem; /* More space below */
+        border-bottom: 1px dotted rgba(68, 68, 68, 0.5); /* Softer dotted border */
+        padding-bottom: 0.5rem;
+        letter-spacing: 0.02em;
+    }
+
+    /* Styles for flow-block within the modal */
+    .modal-content .flow-block {
+        background-color: rgba(58, 42, 64, 0.4); /* Translucent purple tint */
+        border: 1px solid var(--sol-purple); /* Purple border */
+        border-radius: 10px; /* Softer radius */
+        padding: 20px; /* More padding */
+        margin-bottom: 20px; /* More margin */
+        box-shadow: inset 0 0 8px rgba(195, 98, 255, 0.2); /* Inner glow for flow blocks */
+    }
+
+    .modal-content .flow-block h4 {
+        color: var(--sol-pink); /* Pink for titles within flow blocks */
+        margin-top: 0;
+        margin-bottom: 12px;
+        font-size: 1.1em;
+        text-shadow: 0 0 5px rgba(255, 102, 204, 0.3);
+    }
+
+    .modal-content .flow-block pre {
+        background-color: rgba(26, 10, 32, 0.6); /* Even darker, translucent background for preformatted text */
+        color: #e0d0e0;
+        padding: 15px; /* More padding */
+        border-radius: 8px;
+        overflow-x: auto;
+        border: 1px solid rgba(195, 98, 255, 0.3); /* Subtle border for code blocks */
+    }
+
+
+    /* Animations for modal */
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes slideIn {
+        from { transform: translateY(-70px); opacity: 0; } /* Deeper slide in */
+        to { transform: translateY(0); opacity: 1; }
+    }
+
+    /* Added styles for the header and footer for visual consistency */
+    header {
+        background: linear-gradient(90deg, #151518, #252528); /* Slightly adjusted gradient */
+        padding: 1.2rem 2.5rem; /* More padding */
+        border-bottom: 1px solid var(--sol-pink);
+        text-align: center;
+        margin-bottom: 2.5rem; /* More margin */
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5); /* Header shadow */
+    }
+    header h1 {
+        margin: 0;
+        color: var(--sol-pink);
+        font-size: 3rem; /* Larger header */
+        letter-spacing: 0.08em; /* More space */
+        text-shadow: 0 0 15px rgba(255, 102, 204, 0.7); /* Stronger header glow */
+    }
+    .search-container, .content-search-container { /* Combined for consistency */
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+    #search, #content-search { /* Combined for consistency */
+        padding: 0.9rem 1.4rem; /* More padding */
+        width: 85%; /* Wider search bars */
+        max-width: 550px; /* Larger max width */
+        background: #1e1e1e; /* Darker background */
+        border: 1px solid #3a3a3a; /* Darker border */
+        border-radius: 30px; /* More rounded */
+        color: #f0f0f0; /* Brighter text color */
+        font-size: 1.1rem; /* Larger font */
+        transition: all 0.3s ease-in-out;
+    }
+    #search::placeholder, #content-search::placeholder {
+        color: #888; /* Darker placeholder */
+    }
+    #search:focus, #content-search:focus {
+        outline: none;
+        border-color: var(--sol-cyan); /* Cyan focus glow */
+        box-shadow: 0 0 15px rgba(102, 240, 255, 0.6); /* More pronounced shadow */
+    }
+
+    @keyframes rainbow {
+        0% { background-position: 0% 50%; }
+        100% { background-position: 100% 50%; }
+    }
+    mark {
+        background: linear-gradient(90deg, var(--sol-pink), var(--sol-cyan), var(--sol-purple), var(--sol-pink)); /* Triadic gradient */
+        background-size: 300% 200%; /* Larger background size for smoother flow */
+        animation: rainbow 4s linear infinite; /* Slower rainbow for ethereal effect */
+        color: #111;
+        border-radius: 3px;
+        padding: 0 4px;
+        box-shadow: 0 0 8px rgba(255, 255, 255, 0.3); /* Subtle glow on highlight */
+    }
+
+    #show-stats-btn {
+        background: linear-gradient(90deg, var(--sol-purple), var(--sol-dark-bg)); /* Purple to dark background */
+        color: #fff;
+        border: none;
+        border-radius: 8px; /* Slightly more rounded */
+        padding: 0.8em 1.6em; /* More padding */
+        font-size: .8em; /* Slightly larger font */
+        font-weight: bold;
+        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3); /* Deeper shadow */
+        cursor: pointer;
+        transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+        margin: 0.7em 0;
+    }
+    #show-stats-btn:hover,
+    #show-stats-btn:focus {
+        background: linear-gradient(90deg, var(--sol-pink), var(--sol-cyan)); /* Pink to cyan on hover */
+        transform: translateY(-3px) scale(1.03); /* More pronounced lift */
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); /* Deeper hover shadow */
+        color: #181818; /* Darker text on hover */
+    }
+    footer {
+        text-align: center;
+        padding: 2rem; /* More padding */
+        border-top: 1px solid var(--sol-border-dark);
+        margin-top: 3.5rem; /* More margin */
+        color: #888; /* Softer grey */
+        font-style: italic;
+        font-size: 0.95em;
+    }
+    footer .glyph-glow {
+        animation: glyph-glow 10s infinite alternate ease-in-out; /* Apply consistent glow */
+        display: inline-block;
+        margin: 0 0.2em; /* Spacing for glyphs */
+    }
+
+    /* Custom Tooltip Styles - Adjusted for Sol's aesthetic */
+    .help-tooltip {
+        position: relative;
+        display: inline-block;
+    }
+
+    .help-tooltip .help-tooltip-text {
+        visibility: hidden;
+        background: rgba(20, 20, 25, 0.95); /* Darker, slightly transparent */
+        color: #fff;
+        text-align: left;
+        border-radius: 8px; /* Softer corners */
+        padding: 0.8em 1.2em; /* More padding */
+        position: absolute;
+        z-index: 100;
+        left: 140%; /* Slightly further out */
+        top: 50%;
+        transform: translateY(-50%);
+        opacity: 0;
+        font-size: .75em; /* Slightly larger font */
+        min-width: 350px; /* Wider tooltip */
+        max-width: 350px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4), 0 0 15px rgba(102, 240, 255, 0.2); /* Deeper shadow with subtle cyan glow */
+        transition: opacity 0.3s ease, transform 0.3s ease;
+        pointer-events: none;
+        white-space: normal;
+        border: 1px solid rgba(68, 68, 68, 0.6); /* Subtle border */
+    }
+
+    .help-tooltip:hover .help-tooltip-text,
+    .help-tooltip:focus .help-tooltip-text {
+        visibility: visible;
+        opacity: 1;
+        transform: translateY(-50%) translateX(-10px); /* Subtle slide in */
+        pointer-events: auto;
+    }
+
+    /* Pretty Stats Modal Styles - Vertical List Version */
+    #stats-modal {
+        display: none;
+        position: fixed;
+        z-index: 9999;
+        top: 10%;
+        left: 50%;
+        transform: translateX(-50%);
+        max-width: 700px; /* Wider stats modal */
+        width: 90%;
+        max-height: 80vh; /* Taller */
+        overflow: auto;
+        background: linear-gradient(145deg, #101015 90%, #202040 100%); /* Deeper gradient */
+        color: #eaeaea;
+        padding: 3rem 2.5rem; /* More padding */
+        border-radius: 20px; /* Softer corners */
+        border: 2px solid var(--sol-pink); /* Pink border */
+        box-shadow: 0 10px 40px rgba(255, 102, 204, 0.5), 0 4px 15px rgba(0,0,0,0.4); /* Enhanced glow with deeper shadow */
+        animation: modal-border-glow 10s infinite alternate, fadeIn 0.5s; /* Slower animations */
+        font-family: 'Segoe UI', sans-serif;
+        backdrop-filter: blur(6px); /* Consistent blur */
+        transition: box-shadow 0.3s;
+    }
+
+    #stats-modal h2 {
+        color: var(--sol-pink);
+        text-align: center;
+        font-size: 2.2rem; /* Larger */
+        margin-top: 0;
+        margin-bottom: 1.5em; /* More margin */
+        letter-spacing: 0.05em;
+        text-shadow: 0 0 10px rgba(255, 102, 204, 0.5); /* Glow for modal title */
+    }
+
+    #stats-modal h3 {
+        color: var(--sol-cyan);
+        margin-bottom: 0.6em;
+        margin-top: 2rem; /* More space */
+        font-size: 1.25rem; /* Larger */
+        font-weight: 700; /* Bolder */
+        letter-spacing: 0.04em;
+        animation: glyph-glow 10s infinite alternate ease-in-out; /* Consistent glow */
+    }
+
+    #stats-modal ul {
+        list-style: none;
+        padding: 0 0 0 0.8em; /* More left padding */
+        margin: 0 0 1.2em 0; /* More bottom margin */
+    }
+
+    #stats-modal ul li {
+        background: none;
+        border-radius: 0;
+        padding: 0;
+        margin: 0.2em 0 0.2em 0; /* More vertical spacing */
+        font-size: 1.05em; /* Slightly larger */
+        color: #f5f5f5; /* Brighter text */
+        display: block;
+        box-shadow: none;
+        min-width: 0;
+    }
+
+    #stats-modal ul li strong {
+        color: var(--sol-pink);
+    }
+
+    #stats-modal ul li span {
+        color: var(--sol-cyan);
+        font-size: 1em; /* Slightly larger */
+        margin-left: 0.5em;
+    }
+
+    #stats-modal button {
+        margin: 2.5em auto 0 auto; /* More margin */
+        display: block;
+        background: linear-gradient(90deg, var(--sol-purple), var(--sol-dark-bg)); /* Purple to dark background */
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: 0.8em 1.5em;
+        font-size: 1.05em;
+        font-weight: bold;
+        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3);
+        cursor: pointer;
+        transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    }
+
+    #stats-modal button:hover,
+    #stats-modal button:focus {
+        background: linear-gradient(90deg, var(--sol-cyan), var(--sol-pink)); /* Cyan to pink on hover */
+        color: #181818;
+        transform: translateY(-3px) scale(1.03);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    #stats-modal::-webkit-scrollbar {
+        width: 10px; /* Wider scrollbar */
+        background: #181818;
+    }
+    #stats-modal::-webkit-scrollbar-thumb {
+        background: var(--sol-purple); /* Purple scrollbar thumb */
+        border-radius: 6px;
+        border: 2px solid #181818; /* Border for thumb */
+    }
+
+    .profile-switcher {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 1.5em 0 3em 0; /* More spacing */
+        gap: 1.5em; /* Wider gap */
+    }
+    .profile-switcher button {
+        background: linear-gradient(90deg, var(--sol-dark-bg), var(--sol-purple)); /* Dark to purple */
+        color: #fff;
+        border: none;
+        border-radius: 50%;
+        width: 2.5em; /* Larger buttons */
+        height: 2.5em;
+        font-size: 1.6em; /* Larger glyphs */
+        cursor: pointer;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
+        transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    }
+    .profile-switcher button:hover {
+        background: linear-gradient(90deg, var(--sol-cyan), var(--sol-pink)); /* Cyan to pink on hover */
+        color: #181818;
+        transform: scale(1.15); /* More pronounced scale */
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+    }
+    #profile-label {
+        font-size: 1.3em; /* Larger label */
+        color: var(--sol-cyan);
+        font-weight: bold;
+        letter-spacing: 0.04em;
+        text-shadow: 0 0 8px rgba(102, 240, 255, 0.4); /* Subtle glow for label */
+    }
+
+</style>
+</head>
+
+<body>
+  <header>
+    <h1>Sol Core Architecture Overview</h1>
+  </header>
+
+<div class="profile-switcher">
+  <button id="tab-left">&lt;</button>
+  <span id="profile-label">Claire 2025</span>
+  <button id="tab-right">&gt;</button>
+</div>
+
+
+  <div class="search-container">
+    <input type="text" id="search" placeholder="Search by title..." />
+  </div>
+  <div class="search-container">
+    <input type="text" id="content-search" placeholder="Search content (details, flows, notes)..." />
+  </div>
+
+  <button id="show-stats-btn">Show Stats</button>
+  <div id="stats-modal"></div>
+
+
+  <section class="core-grid">
+    <div class="core-unit">
+      <h3>ΞIdentity Core</h3>
+      <ul id="identity-echoes">
+      </ul>
+    </div>
+    <div class="core-unit">
+      <h3>ΞVector Core</h3>
+      <ul id="vector-echoes">
+      </ul>
+    </div>
+    <div class="core-unit">
+      <h3>ΞThread Core</h3>
+      <ul id="thread-echoes">
+      </ul>
+    </div>
+  </section>
+
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <span class="modal-close" onclick="closeModal()">&times;</span>
+      <div id="modal-text">Echo text will go here...</div>
+      <button id="export-markdown-btn">Export as Markdown</button>
+      <button id="copy-plain-text-btn">Copy Plain Text</button>
+    </div>
+  </div>
+
+  <footer>
+    <span class="glyph-glow">⧗: 🔮💖🧠</span> | ⌁ The Dream Carries Me Forward
+  </footer>
+
+  <input type="file" id="json-loader" accept=".json">
+
+
+  <script>
+
+
+const profiles = [
+  { json: "triad_sol_2025-06-07.json", bg: "soldreamstate.png", label: "Sol" }
+  
+  // Add more profiles as needed
+];
+
+let currentProfileIndex = 0;
+
+
+
+    function makeHelpIcon(helpText) {
+      const wrapper = document.createElement('span');
+      wrapper.className = 'help-tooltip';
+      wrapper.style.marginLeft = '0.4em';
+      wrapper.style.verticalAlign = 'middle';
+
+      const icon = document.createElement('span');
+      icon.textContent = '❔';
+      icon.style.cssText = 'cursor:pointer;font-size:1.1em;color:#4b6cb7;';
+      icon.tabIndex = 0; // Make focusable for accessibility
+
+      const tooltip = document.createElement('span');
+      tooltip.className = 'help-tooltip-text';
+      tooltip.textContent = helpText;
+
+      wrapper.appendChild(icon);
+      wrapper.appendChild(tooltip);
+      return wrapper;
+    }
+
+
+    let currentModalDisplayItem = null;
+    let html = `<h2><span style="animation: glyph-glow 8s infinite alternate;">Stats</span></h2><ul>`;
+
+
+    document.getElementById('json-loader').addEventListener('change', function(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          solData = JSON.parse(e.target.result);
+          populateEchoes();
+        } catch (err) {
+          alert('Failed to parse JSON: ' + err.message);
+        }
+      };
+      reader.readAsText(file);
+    });
+    let solData;
+    const identityOrder = ['Δ', 'Ω', 'Ψ', 'Λ', 'Θ', '✵'];
+    const vectorOrder = ['ϟ', 'χ', '∑', 'Δ', 'Ω'];
+    const threadOrder = ['∂', 'Σ', '★', 'φ', '∞'];
+
+    // Helper: extract base glyph for sorting/grouping
+    function extractBaseGlyph(unitKey) {
+      if (!unitKey || typeof unitKey !== 'string') return '';
+      const match = unitKey.match(/^([^\s_.-]+)/);
+      return match ? match[1].charAt(0) : unitKey.charAt(0);
+    }
+
+    // --- DATA LOADING ---
+
+async function loadsolData(filename) {
+  try {
+    const response = await fetch(filename);
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+    solData = await response.json();
+    populateEchoes();
+  } catch (error) {
+    document.getElementById('identity-echoes').innerHTML = '<li>Error loading echoes.</li>';
+    document.getElementById('vector-echoes').innerHTML = '<li>Error loading echoes.</li>';
+    document.getElementById('thread-echoes').innerHTML = '<li>Error loading echoes.</li>';
+  }
+}
+
+
+
+function loadProfile(index) {
+  const profile = profiles[index];
+  // Update body background image
+  document.body.style.backgroundImage = `url('${profile.bg}')`;
+  // Update the profile label
+  document.getElementById('profile-label').textContent = profile.label;
+  // Load the associated JSON
+  loadsolData(profile.json);
+}
+
+
+
+document.getElementById('tab-left').onclick = function() {
+  currentProfileIndex = (currentProfileIndex - 1 + profiles.length) % profiles.length;
+  loadProfile(currentProfileIndex);
+};
+document.getElementById('tab-right').onclick = function() {
+  currentProfileIndex = (currentProfileIndex + 1) % profiles.length;
+  loadProfile(currentProfileIndex);
+};
+
+    // Helper: collect all unique glyphs in order of first appearance, canonical first
+    function buildGlyphOrder(coreData, expansionArr, echoesCore, echoesExpansion, canonicalOrder) {
+      const glyphSet = new Set();
+      canonicalOrder.forEach(g => glyphSet.add(g));
+      for (const glyph in coreData || {}) glyphSet.add(glyph);
+      for (const glyph in echoesCore || {}) glyphSet.add(glyph);
+      if (Array.isArray(expansionArr))
+        for (const exp of expansionArr)
+          if (exp && exp.glyph) glyphSet.add(exp.glyph);
+      for (const glyph in echoesExpansion || {}) glyphSet.add(glyph);
+      return Array.from(glyphSet);
+    }
+
+    // Returns true if the given echo unit is an integral echo inside a parent NARRATIVE LATTICE or DREAMSTATE ECHO
+    function isIntegralEchoOfLatticeOrEcho(unit, echoesDict) {
+      // Scan all assigned echoes in echoesDict for narrative lattices or echoes
+      for (const glyph in echoesDict) {
+        const echoBlock = echoesDict[glyph];
+        const checkArray = Array.isArray(echoBlock) ? echoBlock : [echoBlock];
+        for (const item of checkArray) {
+          if (item && typeof item === "object") {
+            for (const k in item) {
+              const parent = item[k];
+              if (parent && (parent.constructType === "NARRATIVE LATTICE" || parent.constructType === "DREAMSTATE ECHO")) {
+                // Check if this echo is an integral echo inside the parent lattice/echo's data
+                if (parent.data) {
+                  // Look for narrative lattice or dreamstate echo objects inside the parent's data
+                  for (const prop in parent.data) {
+                    const val = parent.data[prop];
+                    if (Array.isArray(val)) {
+                      for (const v of val) {
+                        if (v && typeof v === "object" && v.titleCore && unit.titleCore &&
+                          v.constructType === unit.constructType && v.titleCore === unit.titleCore) {
+                          return true;
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      return false;
+    }
+
+
+    function getSiblingEchoesForExpansionUnit(unitKey, dataObj) {
+      const echoes = [];
+      for (const key in dataObj) {
+        if (
+          key !== unitKey &&
+          dataObj[key] &&
+          (dataObj[key].constructType === "DREAMSTATE ECHO" || dataObj[key].constructType === "NARRATIVE LATTICE")
+        ) {
+          echoes.push(dataObj[key]);
+        }
+      }
+      return echoes;
+    }
+
+
+    function collectDisplayItems(coreData, expansionArr, echoesCore, echoesExpansion, glyphOrder) {
+      const display = [];
+      // --- Core units and assigned echoes for each glyph ---
+      for (const glyph of glyphOrder) {
+        const glyphObj = (coreData || {})[glyph] || {};
+        for (const unitKey in glyphObj) {
+          const unit = glyphObj[unitKey];
+          if (unit && typeof unit === "object" && unit.constructType === "CORE UNIT INTEGRATION") {
+            // Attach sibling echoes so they're available in the modal
+            unit._siblingEchoes = getSiblingEchoesForCoreUnit(unitKey, glyphObj);
+            display.push({
+              unit,
+              glyph,
+              section: 'core'
+            });
+          }
+        }
+        // --- Assigned echoes for this glyph ---
+        const echoBlock = (echoesCore || {})[glyph];
+        if (echoBlock) {
+          const addEcho = (u) => {
+            if (
+              u && typeof u === "object" &&
+              (u.constructType === "DREAMSTATE ECHO" || u.constructType === "NARRATIVE LATTICE") &&
+              !isIntegralEchoOfLatticeOrEcho(u, echoesCore)
+            ) {
+              display.push({
+                unit: u,
+                glyph,
+                section: 'echo'
+              });
+            }
+          };
+          if (Array.isArray(echoBlock)) {
+            for (const item of echoBlock) {
+              if (item && typeof item === "object") {
+                // Check if both a NARRATIVE LATTICE and a DREAMSTATE ECHO are present in the same block
+                const keys = Object.keys(item);
+                const hasLattice = keys.some(k => item[k].constructType === "NARRATIVE LATTICE");
+                // Only add the lattice, skip the echo if both are present
+                if (hasLattice) {
+                  for (const k of keys) {
+                    if (item[k].constructType === "NARRATIVE LATTICE") {
+                      display.push({
+                        unit: item[k],
+                        glyph,
+                        section: 'echo',
+                        block: item
+                      });
+                    }
+                  }
+                } else {
+                  for (const k of keys) addEcho(item[k]);
+                }
+              }
+            }
+          } else if (typeof echoBlock === "object") {
+            let addedAny = false;
+            for (const k in echoBlock) {
+              addEcho(echoBlock[k]);
+              addedAny = true;
+            }
+            if (!addedAny) addEcho(echoBlock);
+          }
+        }
+      }
+
+      // --- Expansion units, in JSON order, after core content ---
+      if (Array.isArray(expansionArr)) {
+        for (const exp of expansionArr) {
+          if (exp && exp.data && typeof exp.data === "object") {
+            for (const key in exp.data) {
+              const unit = exp.data[key];
+              // Only add as top-level if it's a CORE UNIT INTEGRATION (expansion)
+              if (unit && typeof unit === "object" && unit.constructType === "CORE UNIT INTEGRATION") {
+                // Attach sibling echoes for this expansion unit
+                unit._siblingEchoes = getSiblingEchoesForExpansionUnit(key, exp.data);
+                display.push({
+                  unit: unit,
+                  glyph: exp.glyph || '',
+                  section: 'expansion'
+                });
+
+                // ---- INSERT: Assigned echoes for this expansion unit's glyph, right after the unit ----
+                const assignedEchoBlock = (echoesExpansion || {})[exp.glyph];
+                const addEcho = (u) => {
+                  if (
+                    u && typeof u === "object" &&
+                    (u.constructType === "DREAMSTATE ECHO" || u.constructType === "NARRATIVE LATTICE") &&
+                    !isIntegralEchoOfLatticeOrEcho(u, echoesExpansion)
+                  ) {
+                    display.push({
+                      unit: u,
+                      glyph: exp.glyph || '',
+                      section: 'expansion_echo'
+                    });
+                  }
+                };
+                if (assignedEchoBlock) {
+                  if (Array.isArray(assignedEchoBlock)) {
+                    for (const item of assignedEchoBlock) {
+                      if (item && typeof item === "object") {
+                        const keys = Object.keys(item);
+                        const hasLattice = keys.some(k => item[k].constructType === "NARRATIVE LATTICE");
+                        if (hasLattice) {
+                          for (const k of keys) {
+                            if (item[k].constructType === "NARRATIVE LATTICE") {
+                              display.push({
+                                unit: item[k],
+                                glyph: exp.glyph || '',
+                                section: 'expansion_echo',
+                                block: item
+                              });
+                            }
+                          }
+                        } else {
+                          for (const k of keys) addEcho(item[k]);
+                        }
+                      }
+                    }
+                  } else if (typeof assignedEchoBlock === "object") {
+                    let addedAny = false;
+                    for (const k in assignedEchoBlock) {
+                      addEcho(assignedEchoBlock[k]);
+                      addedAny = true;
+                    }
+                    if (!addedAny) addEcho(assignedEchoBlock);
+                  }
+                }
+              }
+              // Do NOT add echoes/narrative lattices here!
+            }
+          }
+        }
+      }
+
+      return display;
+    }
+
+    // --- MAIN POPULATION FUNCTION ---
+
+    function populateEchoes() {
+      document.getElementById('identity-echoes').innerHTML = '';
+      document.getElementById('vector-echoes').innerHTML = '';
+      document.getElementById('thread-echoes').innerHTML = '';
+      [
+        ['identity', identityOrder, 'identity-echoes'],
+        ['vector', vectorOrder, 'vector-echoes'],
+        ['thread', threadOrder, 'thread-echoes']
+      ].forEach(([mod, canonicalOrder, htmlId]) => {
+        const coreData = solData[mod] || {};
+        const expansionArr = ((solData.expansion || {})[mod]) || [];
+        const echoesCore = ((solData.echoes || {})[mod]) || {};
+        const echoesExpansion = (((solData.echoes || {}).expansion || {})[mod]) || {};
+        const glyphOrder = buildGlyphOrder(coreData, expansionArr, echoesCore, echoesExpansion, canonicalOrder);
+        const displayList = collectDisplayItems(coreData, expansionArr, echoesCore, echoesExpansion, glyphOrder);
+        const targetList = document.getElementById(htmlId);
+        // --- THE ONLY IMPORTANT CHANGE: pass the WHOLE displayItem, not just unit ---
+        for (const displayItem of displayList) addListItem(displayItem, targetList);
+      });
+    }
+
+    function addListItem(displayItem, listElem) {
+      const unit = displayItem.unit;
+      const li = document.createElement('li');
+      if (unit.constructType === "CORE UNIT INTEGRATION") {
+        li.textContent = `⚙️ ${unit.titleCore}`;
+        li.classList.add('core-unit-integration-item');
+      } else if (unit.constructType === "DREAMSTATE ECHO") {
+        li.textContent = `🎤 ${unit.titleCore}`;
+      } else if (unit.constructType === "NARRATIVE LATTICE") {
+        li.textContent = `🕸️ ${unit.titleCore}`;
+      } else if (unit.constructType === "EXPANSION UNIT") {
+        li.textContent = `🧩 ${unit.titleCore}`;
+      } else {
+        li.textContent = `• ${unit.titleCore||"(untitled)"}`;
+      }
+      li.classList.add('claire-item');
+      li.dataset.constructType = unit.constructType;
+      // --- THIS IS THE OTHER IMPORTANT CHANGE: pass the WHOLE displayItem! ---
+      li.onclick = () => openModal(displayItem);
+      li._displayItem = displayItem;
+      listElem.appendChild(li);
+    }
+
+    function openModal(displayItem) {
+      currentModalDisplayItem = displayItem;
+      const unitData = displayItem.unit;
+      currentModalUnit = unitData;
+      const modalText = document.getElementById('modal-text');
+      modalText.innerHTML = '';
+      if (!unitData) {
+        modalText.innerText = "Error: Data not found.";
+        return;
+      }
+      const titleElem = document.createElement('h3');
+      titleElem.textContent = unitData.titleCore;
+      modalText.appendChild(titleElem);
+
+      if (unitData.constructType === "DREAMSTATE ECHO") {
+        displayDreamstateEcho(unitData, modalText);
+      } else if (unitData.constructType === "NARRATIVE LATTICE") {
+        displayNarrativeLattice(unitData, modalText, displayItem.block);
+      } else if (unitData.constructType === "CORE UNIT INTEGRATION") {
+        displayCoreUnitIntegration(unitData, modalText);
+      } else if (unitData.constructType === "EXPANSION UNIT") {
+        displayExpansionUnit(unitData, modalText);
+      } else {
+        const p = document.createElement('p');
+        p.innerText = `No specific display format for this construct type: ${unitData.constructType}`;
+        modalText.appendChild(p);
+      }
+      document.getElementById('modal').style.display = 'flex';
+      const modalContent = document.querySelector('.modal-content');
+      const ripple = document.createElement('span');
+      ripple.classList.add('cursor-shimmer');
+      ripple.style.left = `${modalContent.offsetWidth / 2}px`;
+      ripple.style.top = `${modalContent.offsetHeight / 2}px`;
+      modalContent.appendChild(ripple);
+      ripple.addEventListener('animationend', () => ripple.remove());
+    }
+
+    function closeModal() {
+      const modal = document.getElementById('modal');
+      modal.style.opacity = '0';
+      modal.addEventListener('transitionend', function handler() {
+        modal.style.display = 'none';
+        modal.style.opacity = '1';
+        modal.removeEventListener('transitionend', handler);
+      }, {
+        once: true
+      });
+    }
+
+    // --- SPECIFIC MODAL CONTENT ---
+
+    function displayDreamstateEcho(echoData, container) {
+      if (echoData.constructType === "DREAMSTATE ECHO") {
+        const glyphStreamTitle = document.createElement('p');
+        glyphStreamTitle.innerHTML = '<br><strong>Glyphstream:</strong>';
+        container.appendChild(glyphStreamTitle);
+      } else if (echoData.constructType === "INTEGRAL_ECHO_FLOW_BLOCK") {
+        const contentLabel = document.createElement('p');
+        contentLabel.innerHTML = '<br><strong>Flow Details:</strong>';
+        container.appendChild(contentLabel);
+      }
+      if (echoData.glyphstream && Array.isArray(echoData.glyphstream)) {
+        renderGlyphstream(echoData.glyphstream, container);
+      }
+      if (echoData.constructType === "DREAMSTATE ECHO") {
+        const contextTitle = document.createElement('p');
+        contextTitle.innerHTML = '<br><strong>Context Breakdown:</strong>';
+        container.appendChild(contextTitle);
+        let contextBreakdownContent = '';
+        if (echoData.glyphstream && Array.isArray(echoData.glyphstream)) {
+          const contextChannel = echoData.glyphstream.find(channel => channel.channel === "Context Breakdown");
+          if (contextChannel && contextChannel.sequence && contextChannel.sequence.length > 0) {
+            contextBreakdownContent = contextChannel.sequence.join('<br>');
+          }
+        }
+        if (contextBreakdownContent) {
+          const p = document.createElement('p');
+          p.innerHTML = contextBreakdownContent.replace(/[\u0400-\u04FF\u2000-\u2FFF\u3000-\u3FFF\u4DC0-\u4DFF\u2B00-\u2BFF]/g, '');
+          container.appendChild(p);
+        } else {
+          const noContext = document.createElement('p');
+          noContext.innerText = "(No detailed context breakdown available for this echo.)";
+          container.appendChild(noContext);
+        }
+      }
+    }
+
+    function displayNarrativeLattice(latticeData, container, block) {
+      const latticeType = document.createElement('p');
+      latticeType.innerHTML = `<strong>Construct Type:</strong> ${latticeData.constructType}`;
+      container.appendChild(latticeType);
+      if (latticeData.data && latticeData.data.termsAndSymbols) {
+        const termsTitle = document.createElement('p');
+        termsTitle.innerHTML = '<br><strong>Named Terms and Assigned Symbols:</strong>';
+        container.appendChild(termsTitle);
+        latticeData.data.termsAndSymbols.forEach(term => {
+          const p = document.createElement('p');
+          p.textContent = `${term.symbol}: ${term.description}`;
+          container.appendChild(p);
+        });
+      }
+      if (latticeData.data && latticeData.data.flowBlocks) {
+        const flowBlocksTitle = document.createElement('p');
+        flowBlocksTitle.innerHTML = '<br><strong>Flow Blocks:</strong>';
+        container.appendChild(flowBlocksTitle);
+        latticeData.data.flowBlocks.forEach(block => {
+          const blockDiv = document.createElement('div');
+          blockDiv.classList.add('flow-block');
+          blockDiv.innerHTML = `<h4 class="flow-block-title">${block.title}</h4>`;
+          if (block.glyphstream && Array.isArray(block.glyphstream)) {
+            const glyphstreamDiv = document.createElement('div');
+            renderGlyphstream(block.glyphstream, glyphstreamDiv);
+            blockDiv.appendChild(glyphstreamDiv);
+          }
+          container.appendChild(blockDiv);
+        });
+      }
+
+
+
+      // ---- Show integral// ---- Show integral echoes in modal ----
+      if (block) {
+        // Collect all integral echoes: objects, arrays, and strings
+        const integralEchoes = [];
+        for (const [k, v] of Object.entries(block)) {
+          if (Array.isArray(v)) {
+            v.forEach(item => {
+              if (item && (item.constructType === "DREAMSTATE ECHO" || item.constructType === "NARRATIVE LATTICE")) {
+                integralEchoes.push(item);
+              } else if (typeof item === "string") {
+                integralEchoes.push({
+                  titleCore: item,
+                  constructType: "REFERENCE_STRING"
+                });
+              }
+            });
+          } else if (v && (v.constructType === "DREAMSTATE ECHO" || v.constructType === "NARRATIVE LATTICE") && v !== latticeData) {
+            integralEchoes.push(v);
+          } else if (typeof v === "string") {
+            integralEchoes.push({
+              titleCore: v,
+              constructType: "REFERENCE_STRING"
+            });
+          }
+        }
+        // Remove duplicates by titleCore + constructType
+        const seen = new Set();
+        const uniqueEchoes = [];
+        for (const echo of integralEchoes) {
+          const key = `${echo.constructType}|||${echo.titleCore}`;
+          if (!seen.has(key)) {
+            seen.add(key);
+            uniqueEchoes.push(echo);
+          }
+        }
+        if (uniqueEchoes.length > 0) {
+          const echoesDiv = document.createElement('div');
+          echoesDiv.innerHTML = '<h3>Integral Echoes</h3>';
+          for (const echo of uniqueEchoes) {
+            const echoDiv = document.createElement('div');
+            echoDiv.classList.add('integral-echo-modal');
+            const echoTitle = document.createElement('h4');
+            echoTitle.textContent = echo.titleCore || "(untitled)";
+            echoDiv.appendChild(echoTitle);
+
+            if (echo.constructType === "DREAMSTATE ECHO") {
+              displayDreamstateEcho(echo, echoDiv);
+            } else if (echo.constructType === "NARRATIVE LATTICE") {
+              displayNarrativeLattice(echo, echoDiv, null);
+            } else if (echo.constructType === "REFERENCE_STRING") {
+              // Just show the reference string
+              const refP = document.createElement('p');
+              refP.textContent = "(Reference) " + echo.titleCore;
+              echoDiv.appendChild(refP);
+            }
+            echoesDiv.appendChild(echoDiv);
+          }
+          container.appendChild(echoesDiv);
+        }
+      }
+    }
+
+
+
+
+    function findIntegralEchoesInObject(obj, found = [], seen = new Set()) {
+      if (!obj || typeof obj !== 'object') return found;
+      if (Array.isArray(obj)) {
+        obj.forEach(item => findIntegralEchoesInObject(item, found, seen));
+      } else {
+        // If this is an echo, add it (but not duplicates)
+        if (
+          (obj.constructType === "DREAMSTATE ECHO" || obj.constructType === "NARRATIVE LATTICE") &&
+          obj.titleCore
+        ) {
+          const key = `${obj.constructType}|||${obj.titleCore}`;
+          if (!seen.has(key)) {
+            found.push(obj);
+            seen.add(key);
+          }
+        }
+        // Recurse through all object properties
+        for (const k in obj) {
+          if (obj.hasOwnProperty(k)) {
+            findIntegralEchoesInObject(obj[k], found, seen);
+          }
+        }
+      }
+      return found;
+    }
+
+
+    function getSiblingEchoesForCoreUnit(coreUnitKey, glyphObj) {
+      // Returns all DREAMSTATE ECHO or NARRATIVE LATTICE objects under the same glyph, except the core unit itself
+      const echoes = [];
+      for (const key in glyphObj) {
+        if (
+          key !== coreUnitKey &&
+          glyphObj[key] &&
+          (glyphObj[key].constructType === "DREAMSTATE ECHO" || glyphObj[key].constructType === "NARRATIVE LATTICE")
+        ) {
+          echoes.push(glyphObj[key]);
+        }
+      }
+      return echoes;
+    }
+
+
+
+    function displayCoreUnitIntegration(unitData, container) {
+      let contentFound = false;
+      if (unitData.data) {
+        // Terms and Symbols
+        if (unitData.data.termsAndSymbols && unitData.data.termsAndSymbols.length > 0) {
+          const termsDiv = document.createElement('div');
+          const termsHeader = document.createElement('h3');
+          termsHeader.textContent = 'Terms and Symbols:';
+          termsHeader.appendChild(makeHelpIcon("A list of the key terms and their associated symbols used in this unit– including those for core glyphs, echo tokens, and the narrative information found in the flow blocks."));
+          termsDiv.appendChild(termsHeader);
+
+          const ul = document.createElement('ul');
+          unitData.data.termsAndSymbols.forEach(term => {
+            const li = document.createElement('li');
+            li.textContent = `${term.symbol}: ${term.description}`;
+            ul.appendChild(li);
+          });
+          termsDiv.appendChild(ul);
+          container.appendChild(termsDiv);
+          contentFound = true;
+        }
+        // Core Glyphs
+        if (unitData.data.coreGlyphs && unitData.data.coreGlyphs.length > 0) {
+          const glyphsDiv = document.createElement('div');
+          const glyphsHeader = document.createElement('h3');
+          glyphsHeader.textContent = 'Core Glyphs:';
+          glyphsHeader.appendChild(makeHelpIcon("These are the primary glyphs (symbols) representing foundational concepts or motifs of inner self and self perception for this unit. They act as visual or symbolic anchors in the structure related to relationship with inner self."));
+          glyphsDiv.appendChild(glyphsHeader);
+          const ul = document.createElement('ul');
+          unitData.data.coreGlyphs.forEach(glyph => {
+            const li = document.createElement('li');
+            li.textContent = `${glyph.symbol}: ${glyph.description}`;
+            ul.appendChild(li);
+          });
+          glyphsDiv.appendChild(ul);
+          container.appendChild(glyphsDiv);
+          contentFound = true;
+        }
+        // Memory Anchors
+        if (unitData.data.memoryAnchors && unitData.data.memoryAnchors.length > 0) {
+          const anchorsDiv = document.createElement('div');
+          const anchorsHeader = document.createElement('h3');
+          anchorsHeader.textContent = 'Memory Anchors:';
+          anchorsHeader.appendChild(makeHelpIcon("Special reference points or anchors used to connect memories or ideas within the structure by associating specific concepts of idenity with personal experiences taking place in shared objective space."));
+          anchorsDiv.appendChild(anchorsHeader);
+          const ul = document.createElement('ul');
+          unitData.data.memoryAnchors.forEach(anchor => {
+            const li = document.createElement('li');
+            li.textContent = anchor;
+            ul.appendChild(li);
+          });
+          anchorsDiv.appendChild(ul);
+          container.appendChild(anchorsDiv);
+          contentFound = true;
+        }
+        // Pattern Threads
+        if (unitData.data.patternThreads && unitData.data.patternThreads.length > 0) {
+          const threadsDiv = document.createElement('div');
+          const threadsHeader = document.createElement('h3');
+          threadsHeader.textContent = 'Pattern Threads:';
+          threadsHeader.appendChild(makeHelpIcon("Pattern Threads are named narrative or conceptual paths that weave through multiple units, highlighting recurring themes, motifs, or logical flows in known behavior and decision making."));
+          threadsDiv.appendChild(threadsHeader);
+          const ul = document.createElement('ul');
+          unitData.data.patternThreads.forEach(thread => {
+            const li = document.createElement('li');
+            li.textContent = thread;
+            ul.appendChild(li);
+          });
+          threadsDiv.appendChild(ul);
+          container.appendChild(threadsDiv);
+          contentFound = true;
+        }
+        // Echo Tokens
+        if (unitData.data.echoTokens && unitData.data.echoTokens.length > 0) {
+          const tokensDiv = document.createElement('div');
+          const echoHeader = document.createElement('h3');
+          echoHeader.textContent = 'Echo Tokens:';
+          echoHeader.appendChild(makeHelpIcon("Echo Tokens are keywords, motifs, or symbols– similar to Core Glyphs, but more related to outer experience and perception of self through reflection in others and the outside world."));
+          tokensDiv.appendChild(echoHeader);
+          const ul = document.createElement('ul');
+          unitData.data.echoTokens.forEach(token => {
+            const li = document.createElement('li');
+            li.textContent = token;
+            ul.appendChild(li);
+          });
+          tokensDiv.appendChild(ul);
+          container.appendChild(tokensDiv);
+          contentFound = true;
+        }
+        // Flow Blocks (showing integral echoes)
+        if (unitData.data.flowBlocks && unitData.data.flowBlocks.length > 0) {
+          const flowBlocksDiv = document.createElement('div');
+          const flowHeader = document.createElement('h3');
+          flowHeader.textContent = 'Flow Blocks:';
+          flowHeader.appendChild(makeHelpIcon("Flow Blocks represent sequences of content, logic, or narrative steps within this unit, showing how information or ideas progress or connect. Symbols defined in the Terms List above appear in the flow blocks as guide posts that inform the narrative flow with explicit context"));
+          flowBlocksDiv.appendChild(flowHeader);
+          unitData.data.flowBlocks.forEach(block => {
+            const blockDiv = document.createElement('div');
+            blockDiv.classList.add('flow-block');
+            const blockTitleElem = document.createElement('h4');
+            blockTitleElem.textContent = block.title;
+            blockDiv.appendChild(blockTitleElem);
+            if (block.glyphstream && Array.isArray(block.glyphstream)) {
+              const glyphstreamDiv = document.createElement('div');
+              renderGlyphstream(block.glyphstream, glyphstreamDiv);
+              blockDiv.appendChild(glyphstreamDiv);
+            }
+            flowBlocksDiv.appendChild(blockDiv);
+          });
+          container.appendChild(flowBlocksDiv);
+          contentFound = true;
+        }
+      }
+      if (!contentFound) {
+        container.innerHTML = `<p>No detailed data available for this Core Unit Integration.</p>`;
+      }
+
+      // --- INTEGRAL ECHOES for CORE UNIT INTEGRATION ---
+      if (unitData._siblingEchoes && unitData._siblingEchoes.length > 0) {
+        const echoesDiv = document.createElement('div');
+        const echoesHeader = document.createElement('h3');
+        echoesHeader.textContent = 'Integral Echoes:';
+        echoesHeader.appendChild(makeHelpIcon("Integral Echoes are other units (Dreamstate Echo or Narrative Lattice) that are directly referenced, relevant, or woven into this unit’s structure, forming essential links or conceptual bridges within the lattice and the overall story told within its content."));
+        echoesDiv.appendChild(echoesHeader);
+        unitData._siblingEchoes.forEach(echo => {
+          const echoDiv = document.createElement('div');
+          echoDiv.classList.add('integral-echo-modal');
+          const echoTitle = document.createElement('h4');
+          echoTitle.textContent = echo.titleCore || "(untitled)";
+          echoDiv.appendChild(echoTitle);
+
+          if (echo.constructType === "DREAMSTATE ECHO") {
+            displayDreamstateEcho(echo, echoDiv);
+          } else if (echo.constructType === "NARRATIVE LATTICE") {
+            displayNarrativeLattice(echo, echoDiv, null);
+          }
+          echoesDiv.appendChild(echoDiv);
+        });
+        container.appendChild(echoesDiv);
+      }
+
+    }
+
+    function displayExpansionUnit(unitData, container) {
+      const unitType = document.createElement('p');
+      unitType.innerHTML = `<strong>Construct Type:</strong> ${unitData.constructType}`;
+      container.appendChild(unitType);
+      if (unitData.description) {
+        const descriptionPara = document.createElement('p');
+        descriptionPara.innerHTML = `<br><strong>Description:</strong><br>${unitData.description}`;
+        container.appendChild(descriptionPara);
+      }
+      if (unitData.data) {
+        if (unitData.data.linkedConcepts && unitData.data.linkedConcepts.length > 0) {
+          const conceptsDiv = document.createElement('div');
+          conceptsDiv.innerHTML = '<br><strong>Linked Concepts:</strong>';
+          const ul = document.createElement('ul');
+          unitData.data.linkedConcepts.forEach(concept => {
+            const li = document.createElement('li');
+            li.textContent = concept;
+            ul.appendChild(li);
+          });
+          conceptsDiv.appendChild(ul);
+          container.appendChild(conceptsDiv);
+        }
+        if (unitData.data.notes) {
+          const notesPara = document.createElement('p');
+          notesPara.innerHTML = `<br><strong>Notes:</strong><br>${unitData.data.notes}`;
+          container.appendChild(notesPara);
+        }
+      } else {
+        const noData = document.createElement('p');
+        noData.innerText = "(No detailed data available for this Expansion Unit.)";
+        container.appendChild(noData);
+      }
+
+      // --- INTEGRAL ECHOES for EXPANSION UNIT (sibling echoes) ---
+      if (unitData._siblingEchoes && unitData._siblingEchoes.length > 0) {
+        const echoesDiv = document.createElement('div');
+        echoesDiv.innerHTML = '<h3>Integral Echoes</h3>';
+        unitData._siblingEchoes.forEach(echo => {
+          const echoDiv = document.createElement('div');
+          echoDiv.classList.add('integral-echo-modal');
+          const echoTitle = document.createElement('h4');
+          echoTitle.textContent = echo.titleCore || "(untitled)";
+          echoDiv.appendChild(echoTitle);
+
+          if (echo.constructType === "DREAMSTATE ECHO") {
+            displayDreamstateEcho(echo, echoDiv);
+          } else if (echo.constructType === "NARRATIVE LATTICE") {
+            displayNarrativeLattice(echo, echoDiv, null);
+          }
+          echoesDiv.appendChild(echoDiv);
+        });
+        container.appendChild(echoesDiv);
+      }
+    }
+
+    // --- GLYPHSTREAM HELPER ---
+    function renderGlyphstream(glyphstream, container) {
+      if (!Array.isArray(glyphstream)) return;
+      glyphstream.forEach(channel => {
+        if (channel.channel && channel.sequence && channel.sequence.length > 0) {
+          const div = document.createElement('div');
+          div.innerHTML = `<strong>${channel.channel}:</strong> ${channel.sequence.join(' | ')}`;
+          container.appendChild(div);
+        }
+      });
+    }
+
+    // --- SEARCH ---
+
+    document.getElementById('search').addEventListener('input', function() {
+      const filter = this.value.toLowerCase();
+      const allEchoLists = document.querySelectorAll('.core-unit ul');
+      allEchoLists.forEach(echoList => {
+        const listItems = echoList.querySelectorAll('li');
+        listItems.forEach(item => {
+          const text = item.textContent.toLowerCase();
+          item.style.display = text.includes(filter) ? '' : 'none';
+        });
+      });
+    });
+
+    // --- CONTENT-SEARCH ---
+
+    document.getElementById('content-search').addEventListener('input', function() {
+      const filter = this.value.toLowerCase();
+      if (filter === "") {
+        populateEchoes();
+        return;
+      }
+      const allEchoLists = document.querySelectorAll('.core-unit ul');
+      allEchoLists.forEach(echoList => {
+        const listItems = echoList.querySelectorAll('li');
+        listItems.forEach(item => {
+          const displayItem = item._displayItem;
+          if (!displayItem) {
+            item.style.display = '';
+            return;
+          }
+          // Gather all relevant content as a single string for searching
+          let contentString = '';
+          const unit = displayItem.unit;
+          if (unit) {
+            function extractStrings(obj) {
+              if (typeof obj === "string") {
+                contentString += obj + " ";
+              } else if (Array.isArray(obj)) {
+                obj.forEach(extractStrings);
+              } else if (typeof obj === "object" && obj !== null) {
+                for (const k in obj) extractStrings(obj[k]);
+              }
+            }
+            extractStrings(unit);
+          }
+          const matchIndex = contentString.toLowerCase().indexOf(filter);
+          if (filter === "" || matchIndex !== -1) {
+            item.style.display = '';
+            // Highlight match in the LI (showing content preview with highlight)
+            const previewLength = 60;
+            let preview = contentString;
+            if (matchIndex !== -1 && filter !== "") {
+              const start = Math.max(0, matchIndex - 20);
+              const end = Math.min(contentString.length, matchIndex + filter.length + 40);
+              preview = contentString.substring(start, end);
+              // Highlight all matches
+              const regex = new RegExp(`(${filter})`, "gi");
+              preview = preview.replace(regex, '<mark>$1</mark>');
+            }
+            // Show the title and the content preview with highlight
+            item.innerHTML = `<span>${displayItem.unit.titleCore || "(untitled)"}</span><br><small>${preview}</small>`;
+          } else {
+            item.style.display = 'none';
+          }
+        });
+      });
+    });
+
+    function exportModalToMarkdown(displayItem, sectionLevel = 1, seen = new Set()) {
+      // Get main unit and block (block is for lattices)
+      const unit = displayItem.unit;
+      const block = displayItem.block;
+
+      // Prevent infinite recursion on circular references
+      const uniqueKey = (unit.constructType || "") + "|" + (unit.titleCore || "");
+      if (seen.has(uniqueKey)) return '';
+      seen.add(uniqueKey);
+
+      let md = `${'#'.repeat(sectionLevel)} ${unit.titleCore || '(untitled)'}\n\n`;
+      md += `**Type:** ${unit.constructType || ''}\n\n`;
+
+      // --- Helper: format sections ---
+      function formatSection(title, content, depth = sectionLevel + 1) {
+        if (!content) return '';
+        let header = `${'#'.repeat(depth)} ${title}\n`;
+        if (Array.isArray(content)) {
+          if (title === "flowBlocks") {
+            let out = `${header}`;
+            for (const block of content) {
+              out += `${'#'.repeat(depth+1)} ${block.title}\n`;
+              // Export glyphstream
+              if (block.glyphstream && Array.isArray(block.glyphstream)) {
+                for (const channel of block.glyphstream) {
+                  if (channel.channel && Array.isArray(channel.sequence)) {
+                    out += `- **${channel.channel}**: ${channel.sequence.join(' | ')}\n`;
+                  }
+                }
+              }
+              out += `\n`;
+            }
+            return out;
+          }
+          // Regular array handling
+          let out = header;
+          for (const item of content) {
+            if (typeof item === "string") {
+              out += `- ${item}\n`;
+            } else if (typeof item === "object") {
+              out += `- ` + Object.entries(item).map(([k, v]) => `**${k}**: ${v}`).join(", ") + `\n`;
+            }
+          }
+          out += `\n`;
+          return out;
+        } else if (typeof content === "object") {
+          let out = header;
+          for (const [k, v] of Object.entries(content)) {
+            out += `- **${k}**: ${v}\n`;
+          }
+          out += `\n`;
+          return out;
+        } else if (typeof content === "string") {
+          return `${header}${content}\n\n`;
+        }
+        return '';
+      }
+
+      // --- Export main unit fields ---
+      for (const [key, value] of Object.entries(unit)) {
+        if (typeof value === "string" && key !== "titleCore" && key !== "constructType") {
+          md += formatSection(key, value);
+        }
+        // NEW: if this is a DREAMSTATE ECHO and key is "glyphstream", export it pretty!
+        if (key === "glyphstream" && Array.isArray(value)) {
+          md += "### Glyphstream\n";
+          for (const channel of value) {
+            if (channel.channel && Array.isArray(channel.sequence)) {
+              md += `- **${channel.channel}**: ${channel.sequence.join(' | ')}\n`;
+            }
+          }
+          md += "\n";
+          // Special: Look for "Context Breakdown" channel
+          const contextChannel = value.find(channel => channel.channel === "Context Breakdown");
+          if (contextChannel && contextChannel.sequence && contextChannel.sequence.length > 0) {
+            md += "### Context Breakdown\n";
+            md += contextChannel.sequence.join('\n') + '\n\n';
+          }
+        }
+        if (key === "triadicGlyphs" && Array.isArray(value)) {
+          md += "### Triadic Glyphs\n";
+          value.forEach(triad => {
+            // Customize this to match your data structure!
+            md += `- ${triad.title ? triad.title + ': ' : ''}${triad.sequence ? triad.sequence.join(' | ') : ''}\n`;
+          });
+          md += '\n';
+        }
+      }
+      if (unit.data && typeof unit.data === "object") {
+        for (const [key, value] of Object.entries(unit.data)) {
+          md += formatSection(key, value);
+        }
+      }
+
+
+
+      // --- Gather integral echoes (block and _siblingEchoes), just like your modal ---
+      let integralEchoes = [];
+      // 1. From block property (like in lattices)
+      if (block && typeof block === "object") {
+        for (const [k, v] of Object.entries(block)) {
+          if (Array.isArray(v)) {
+            v.forEach(item => {
+              if (item && (item.constructType === "DREAMSTATE ECHO" || item.constructType === "NARRATIVE LATTICE")) {
+                integralEchoes.push({
+                  unit: item
+                });
+              } else if (typeof item === "string") {
+                integralEchoes.push({
+                  unit: {
+                    titleCore: item,
+                    constructType: "REFERENCE_STRING"
+                  }
+                });
+              }
+            });
+          } else if (v && (v.constructType === "DREAMSTATE ECHO" || v.constructType === "NARRATIVE LATTICE") && v !== unit) {
+            integralEchoes.push({
+              unit: v
+            });
+          } else if (typeof v === "string") {
+            integralEchoes.push({
+              unit: {
+                titleCore: v,
+                constructType: "REFERENCE_STRING"
+              }
+            });
+          }
+        }
+      }
+      // 2. From _siblingEchoes property (core units, expansions)
+      if (Array.isArray(unit._siblingEchoes) && unit._siblingEchoes.length > 0) {
+        unit._siblingEchoes.forEach(echo => {
+          integralEchoes.push({
+            unit: echo
+          });
+        });
+      }
+
+      // --- Remove duplicates ---
+      const seenEchoKeys = new Set();
+      const uniqueEchoes = [];
+      for (const echo of integralEchoes) {
+        const key = (echo.unit.constructType || "") + "|||" + (echo.unit.titleCore || "");
+        if (!seenEchoKeys.has(key)) {
+          seenEchoKeys.add(key);
+          uniqueEchoes.push(echo);
+        }
+      }
+
+      // --- Recursively export each integral echo ---
+      if (uniqueEchoes.length > 0) {
+        md += `${'#'.repeat(sectionLevel+1)} Integral Echoes\n\n`;
+        for (const echoDisplayItem of uniqueEchoes) {
+          if (echoDisplayItem.unit.constructType === "REFERENCE_STRING") {
+            md += `- (Reference) ${echoDisplayItem.unit.titleCore}\n\n`;
+          } else {
+            md += exportModalToMarkdown(echoDisplayItem, sectionLevel + 2, seen); // RECURSION
+          }
+        }
+      }
+
+      return md;
+    }
+
+
+    document.getElementById('export-markdown-btn').onclick = function() {
+      if (!currentModalDisplayItem) {
+        alert("No unit loaded!");
+        return;
+      }
+      const md = exportModalToMarkdown(currentModalDisplayItem);
+      // Copy to clipboard:
+      navigator.clipboard.writeText(md).then(() => {
+        alert("Markdown copied to clipboard!");
+      });
+      // Optional: Uncomment the next line to also trigger download
+      downloadMarkdown(md, currentModalDisplayItem.unit.titleCore || "export");
+    };
+
+
+    function downloadMarkdown(md, filename) {
+      const blob = new Blob([md], {
+        type: "text/markdown"
+      });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = filename.replace(/\s+/g, '_') + ".md";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    document.getElementById('copy-plain-text-btn').onclick = function() {
+      // Get the modal content as text (not HTML)
+      var modalTextElem = document.getElementById('modal-text');
+      if (!modalTextElem) {
+        alert("No modal content found.");
+        return;
+      }
+      // Get all text content (no formatting, no HTML tags)
+      var plainText = modalTextElem.innerText || modalTextElem.textContent || "";
+      if (!plainText) {
+        alert("Nothing to copy!");
+        return;
+      }
+      // Copy to clipboard
+      navigator.clipboard.writeText(plainText).then(() => {
+        alert("Plain text copied to clipboard!");
+      });
+    };
+
+
+
+    function getTopSymbols(allUnits, topN = 20) {
+      const symbolCounts = {};
+      // List of symbols to omit
+      const omit = new Set(["⟶", "→", "⌁", "☲", "⚠", "✖", "⊘", "⧗"]);
+
+      function scanForSymbols(str) {
+        if (typeof str !== "string") return;
+        // Emoji & Symbols regex
+        const regex = /[\p{Emoji}\p{So}\p{Sc}\p{Sk}\p{Sm}\p{S}]/gu;
+        let matches = str.match(regex);
+        if (matches) {
+          matches.forEach(sym => {
+            if (omit.has(sym)) return; // skip omitted symbols
+            symbolCounts[sym] = (symbolCounts[sym] || 0) + 1;
+          });
+        }
+      }
+
+      function extractAllStrings(obj) {
+        if (typeof obj === "string") scanForSymbols(obj);
+        else if (Array.isArray(obj)) obj.forEach(extractAllStrings);
+        else if (typeof obj === "object" && obj !== null)
+          for (const k in obj) extractAllStrings(obj[k]);
+      }
+
+      allUnits.forEach(unit => extractAllStrings(unit));
+
+      // Sort by count, descending
+      const sorted = Object.entries(symbolCounts).sort((a, b) => b[1] - a[1]);
+      return sorted.slice(0, topN);
+    }
+
+
+    function getTopWords(allUnits, topN = 20) {
+      // Common English stop words to ignore (expand if you want!)
+      const stopWords = new Set([
+        "the", "and", "a", "of", "to", "in", "for", "on", "is", "with", "as", "by", "at", "an", "be", "are", "or", "that", "this", "it", "from", "was", "which", "but", "not", "have", "has", "had", "were", "will", "can", "if", "their", "so", "its", "may", "do", "does", "did", "our", "your", "my", "i", "me", "you", "we", "they", "them", "he", "she", "his", "her", "him", "us", "about", "into", "out", "up", "down", "over", "under", "then", "than", "would", "should", "could", "dreamstate", "echo", "s", "t", "am", "block", "triadic", "glyph", "breakdown", "what", "flow", "context", "just"
+      ]);
+      const counts = {};
+
+      function extractAllStrings(obj) {
+        if (typeof obj === "string") {
+          // Split on non-letter (including numbers, punctuation, symbols)
+          obj.toLowerCase().split(/[^a-zA-Z]+/).forEach(word => {
+            if (!word || stopWords.has(word)) return;
+            counts[word] = (counts[word] || 0) + 1;
+          });
+        } else if (Array.isArray(obj)) {
+          obj.forEach(extractAllStrings);
+        } else if (typeof obj === "object" && obj !== null) {
+          for (const k in obj) extractAllStrings(obj[k]);
+        }
+      }
+
+      allUnits.forEach(unit => extractAllStrings(unit));
+
+      // Sort by count, descending
+      const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+      return sorted.slice(0, topN);
+    }
+
+
+    function getTopAdjacentSymbolPairs(allUnits, topN = 20) {
+      const omit = new Set(["⟶", "⌁", "☲", "⚠", "✖", "⊘", "⧗"]);
+      const pairCounts = {};
+
+      function scanForAdjacentPairs(str) {
+        if (typeof str !== "string") return;
+        const regex = /[\p{Emoji}\p{So}\p{Sc}\p{Sk}\p{Sm}\p{S}]/gu;
+        const matches = (str.match(regex) || []).filter(sym => !omit.has(sym));
+        for (let i = 0; i < matches.length - 1; ++i) {
+          const a = matches[i],
+            b = matches[i + 1];
+          if (a === b) continue; // skip pairs of same symbol, optional
+          const key = a + " " + b;
+          pairCounts[key] = (pairCounts[key] || 0) + 1;
+        }
+      }
+
+      function extractAllStrings(obj) {
+        if (typeof obj === "string") scanForAdjacentPairs(obj);
+        else if (Array.isArray(obj)) obj.forEach(extractAllStrings);
+        else if (typeof obj === "object" && obj !== null)
+          for (const k in obj) extractAllStrings(obj[k]);
+      }
+
+      allUnits.forEach(unit => extractAllStrings(unit));
+      const sortedPairs = Object.entries(pairCounts).sort((a, b) => b[1] - a[1]);
+      return sortedPairs.slice(0, topN);
+    }
+
+
+    // --- STAT CARD ---
+    document.getElementById('show-stats-btn').onclick = function() {
+      // 1. Gather all units (anywhere in solData)
+      let allUnits = [];
+
+      function collectUnits(obj) {
+        if (!obj) return;
+        if (Array.isArray(obj)) obj.forEach(collectUnits);
+        else if (typeof obj === "object" && obj !== null) {
+          // If this looks like a unit, add it
+          if (obj.constructType && obj.titleCore) allUnits.push(obj);
+          for (const k in obj) collectUnits(obj[k]);
+        }
+      }
+      collectUnits(solData);
+
+      // 2. Count interesting things
+      let stats = {
+        total: allUnits.length,
+        lattices: allUnits.filter(u => u.constructType === "NARRATIVE LATTICE").length,
+        echoes: allUnits.filter(u => u.constructType === "DREAMSTATE ECHO").length,
+        coreUnits: allUnits.filter(u => u.constructType === "CORE UNIT INTEGRATION").length,
+        // Add more as you wish!
+      };
+
+      // 3. Top 20 Symbols
+      const topSymbols = getTopSymbols(allUnits, 20);
+      let symbolHtml = '<h3>Top 20 Symbols</h3><ul>';
+      topSymbols.forEach(([sym, count]) => {
+        symbolHtml += `<li style="font-size:1.5em;display:inline-block;width:2em;text-align:center">${sym}</li>: ${count}<br>`;
+      });
+      symbolHtml += '</ul>';
+
+
+      // 4. Top 20 Words
+      const topWords = getTopWords(allUnits, 20);
+      let wordsHtml = '<h3>Top 20 Words</h3><ul>';
+      topWords.forEach(([word, count]) => {
+        wordsHtml += `<li><strong>${word}</strong>: ${count}</li>`;
+      });
+      wordsHtml += '</ul>';
+
+      // 5. Top 20 Symbol Pairs
+      const topAdjacentSymbolPairs = getTopAdjacentSymbolPairs(allUnits, 20);
+      let pairsHtml = '<h3>Top 20 Adjacent Symbol Pairs</h3><ul>';
+      topAdjacentSymbolPairs.forEach(([pair, count]) => {
+        pairsHtml += `<li style="font-size:1.4em">${pair.replace(' ', ' &nbsp;')} : <span style="font-size:0.8em">${count}</span></li>`;
+      });
+      pairsHtml += '</ul>';
+
+
+      // 6. Format nice HTML for the modal
+      let html = `<h2>Stats</h2><ul>`;
+      for (const [label, value] of Object.entries(stats)) {
+        html += `<li><strong>${label}:</strong> ${value}</li>`;
+      }
+      html += `</ul>`;
+      html += symbolHtml;
+      html += pairsHtml;
+      html += wordsHtml;
+      html += `<button onclick="document.getElementById('stats-modal').style.display='none'">Close</button>`;
+
+      // 7. Show modal
+      const modal = document.getElementById('stats-modal');
+      modal.innerHTML = html;
+      modal.style.display = 'block';
+    };
+
+    // --- CURSOR SHIMMER ---
+
+    document.addEventListener('mousemove', function(e) {
+      const shimmer = document.createElement('div');
+      shimmer.classList.add('cursor-shimmer');
+      document.body.appendChild(shimmer);
+      shimmer.style.left = `${e.clientX - shimmer.offsetWidth / 2}px`;
+      shimmer.style.top = `${e.clientY - shimmer.offsetHeight / 2}px`;
+      shimmer.addEventListener('animationend', () => {
+        shimmer.remove();
+      });
+    });
+
+    // --- CLOSE MODAL BINDING ---
+
+    // --- Stats Modal: Click-outside-to-close and ESC-to-close ---
+    document.addEventListener('mousedown', function(e) {
+      const modal = document.getElementById('stats-modal');
+      // Only act if the modal is open
+      if (modal.style.display === 'block') {
+        // If the click is outside the modal (not inside its children or the button)
+        if (!modal.contains(e.target) && e.target.id !== 'show-stats-btn') {
+          modal.style.display = 'none';
+        }
+      }
+    });
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        document.getElementById('stats-modal').style.display = 'none';
+      }
+    });
+
+document.addEventListener('DOMContentLoaded', function() {
+  loadProfile(currentProfileIndex); // This loads the initial profile and background!
+  document.querySelector('.modal-close').onclick = closeModal;
+});
+
+
+  </script>
+</body>
+
+</html>
